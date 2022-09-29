@@ -84,6 +84,7 @@ type Transform struct {
 var ignoreHash map[string]bool
 
 func main() {
+	fmt.Println("hi there");
 	app := cli.NewApp()
 	app.Name = "dashing"
 	app.Usage = "Generate Dash documentation from HTML files"
@@ -92,6 +93,7 @@ func main() {
 	app.Commands = commands()
 
 	app.Run(os.Args)
+	fmt.Println("bye now");
 }
 
 func commands() []*cli.Command {
@@ -441,7 +443,8 @@ func texasRanger(base string, base_depth int, name string, dashing Dashing, db *
 			//fmt.Printf("Failed to copy file %s: %s\n", path, err)
 			//return err
 			//}
-			found, err := parseHTML(path, base_depth, dest, dashing)
+			additional_depth := len(strings.Split(path, "/")) - 1;
+			found, err := parseHTML(path, base_depth + additional_depth, dest, dashing)
 			if err != nil {
 				fmt.Printf("Error parsing %s: %s\n", path, err)
 				return nil
@@ -543,10 +546,11 @@ func parseHTML(path string, source_depth int, dest string, dashing Dashing) ([]*
 			if "href" == attribute.Key || "src" == attribute.Key {
 				if strings.HasPrefix(attribute.Val, "/") {
 					// parts of the path - the file name - the source depth
-					path_depth := len(strings.Split(attribute.Val[1:], "/")) - 1 - source_depth
+					// path_depth := len(strings.Split(attribute.Val[1:], "/")) - 1 - source_depth
+					path_depth := source_depth
 					relative := ""
 					if path_depth > 0 {
-						strings.Repeat("../", path_depth)
+						relative = strings.Repeat("../", path_depth)
 					}
 					node.Attr[i].Val = relative + attribute.Val[1:]
 				}
